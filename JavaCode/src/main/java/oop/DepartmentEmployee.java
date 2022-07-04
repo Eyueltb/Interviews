@@ -11,6 +11,7 @@ public class DepartmentEmployee {
                 new Employee(02, "BB", 10000, 30),
                 new Employee(03, "CC", 8000, 40)
                 );
+       /** To increase the salary of employee by 10% if age >=30 */
        employees.stream().forEach(i->{
                  if(i.getAge() >= 30){
                     i.setSalary(i.getSalary() + i.getSalary()* 0.1);

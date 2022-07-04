@@ -36,6 +36,142 @@ class Item {
         this.price = price;
     }
 }
+
+/** Array implementation */
+class ArrayBag<T> implements  IBag<T>{
+    private T[] bag;
+    private static final int DEFAULT_CAPACITY = 20;
+    private int count ;
+
+    public ArrayBag(){
+        this(DEFAULT_CAPACITY);
+    }
+    public ArrayBag(int capacity){
+        count = 0;
+        T [] bag = (T[])new Object[capacity];
+    }
+    @Override
+    public int getCurrentSize() {
+        return count;
+    }
+
+    @Override
+    public boolean isFull() {
+        return count == bag.length;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return count == 0;
+    }
+
+    @Override
+    public boolean add(T newItem) {
+        if(isFull())
+            return false;
+        else {
+            bag[count++] = newItem;
+            return true;
+        }
+
+    }
+
+    @Override
+    public T remove() {
+        return null;
+    }
+
+    @Override
+    public boolean remove(T anEntry) {
+        return false;
+    }
+
+    @Override
+    public void clear(T anEntry) {
+
+    }
+
+    @Override
+    public int getFrequencyOf(T anEntry) {
+        int counter = 0;
+        for (int index = 0; index < count; index++){
+            if (anEntry.equals(bag[index]))
+                counter++;
+        }
+        return counter;
+    }
+
+    @Override
+    public boolean contains(T anEntry) {
+        for (int index = 0; index < count; index++){
+            if (anEntry.equals(bag[index]))
+               return true;
+        }
+        return false;
+    }
+
+    @Override
+    public T[] toArray() {
+        return null;
+    }
+}
+
+/** Array implementation */
+
+class LinkedBag<T> implements IBag<T>{
+
+    @Override
+    public int getCurrentSize() {
+        return 0;
+    }
+
+    @Override
+    public boolean isFull() {
+        return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean add(T newItem) {
+        return false;
+    }
+
+    @Override
+    public T remove() {
+        return null;
+    }
+
+    @Override
+    public boolean remove(T anEntry) {
+        return false;
+    }
+
+    @Override
+    public void clear(T anEntry) {
+
+    }
+
+    @Override
+    public int getFrequencyOf(T anEntry) {
+        return 0;
+    }
+
+    @Override
+    public boolean contains(T anEntry) {
+        return false;
+    }
+
+    @Override
+    public T[] toArray() {
+        return null;
+    }
+}
+
+
 class Bag<Item> implements IBag<Item> {
     private List<Item> items;
     public Bag() {
@@ -93,6 +229,7 @@ class Bag<Item> implements IBag<Item> {
         return new ArrayList<>(items);
     }
 }
+
 interface IBag<T> {
     /** Get the current number of entries */
     int getCurrentSize();
