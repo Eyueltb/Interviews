@@ -1,5 +1,7 @@
 package arrays;
 
+import java.util.stream.IntStream;
+
 /**
  * Given an array nums of integers, return how many of them contain an even number of digits.
  * Example 1:
@@ -38,13 +40,20 @@ public class FindNumbersWithEvenNumberOfDigits {
         return count;
     }
 
+
     private int findNumbers1(int[] nums) {
         int count =0;
         for(int i=0; i < nums.length; i++) {
+            //String valueOf(int i) -> a string representation of the int argument.
             if((String.valueOf(nums[i]).length()) % 2 == 0)
                 count++;
         }
         return count;
+    }
+    private int findNumbersWithEvenNumberOfDigits(int[] nums) {
+        return (int) IntStream.range(0, nums.length)
+                    .filter(i -> (String.valueOf(nums[i]).length()) % 2 == 0).count();
+
     }
     public static void main(String[] args) {
         FindNumbersWithEvenNumberOfDigits numbersWithEvenNumberOfDigits = new FindNumbersWithEvenNumberOfDigits();
@@ -52,5 +61,7 @@ public class FindNumbersWithEvenNumberOfDigits {
         System.out.println(numbersWithEvenNumberOfDigits.findNumbers(new int[]{555,901,482,1771}));
         System.out.println(numbersWithEvenNumberOfDigits.findNumbers1(new int[]{12,345,2,6,7896}));
         System.out.println(numbersWithEvenNumberOfDigits.findNumbers1(new int[]{555,901,482,1771}));
+        System.out.println(numbersWithEvenNumberOfDigits.findNumbersWithEvenNumberOfDigits(new int[]{12,345,2,6,7896}));
+        System.out.println(numbersWithEvenNumberOfDigits.findNumbersWithEvenNumberOfDigits(new int[]{555,901,482,1771}));
     }
 }
