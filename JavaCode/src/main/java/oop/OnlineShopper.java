@@ -2,19 +2,18 @@ package oop;
 
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class OnlineShopper {
-    public static void main(String[] args) {
+    public static final void main(String ... args) {
         Item [] items = {
                 new Item ("Item 1", 1340),
                 new Item ("Item 2", 1000),
                 new Item ("Item 3", 1110),
                 new Item ("Item 4", 14540),
         };
-        Bag<Item> shoppingCart = new Bag<>();
+        IBag<Item> shoppingCart = new ArrayBag<>();
         final int[] totalCost = {0};
 
         Arrays.stream(items).forEach(item -> {
@@ -22,7 +21,7 @@ public class OnlineShopper {
             totalCost[0] += item.getPrice();
         });
         System.out.println("total cost " + totalCost[0]);
-        shoppingCart.getItems().stream().forEach(System.out::println);
+        shoppingCart.toStream().forEach(System.out::println);
     }
 }
 
@@ -48,7 +47,7 @@ class ArrayBag<T> implements  IBag<T>{
     }
     public ArrayBag(int capacity){
         count = 0;
-        T [] bag = (T[])new Object[capacity];
+        this.bag = (T[]) new Object[capacity];
     }
     @Override
     public int getCurrentSize() {
@@ -67,52 +66,78 @@ class ArrayBag<T> implements  IBag<T>{
 
     @Override
     public boolean add(T newItem) {
-        if(isFull())
-            return false;
-        else {
-            bag[count++] = newItem;
-            return true;
-        }
-
+       ensureCapacity();
+       bag[count++] = newItem;
+       return true;
     }
 
     @Override
     public T remove() {
-        return null;
+        T result = null;
+        if(count > 0)
+        {
+            result = bag[count -1];
+            bag[count -1] = null;
+            count --;
+        }
+        return result;
     }
 
     @Override
     public boolean remove(T anEntry) {
-        return false;
+        int index = getIndexOf(anEntry);
+        T result = removeEntry(index);
+       return anEntry.equals(result);
     }
 
     @Override
-    public void clear(T anEntry) {
-
+    public void clear() {
+        count = 0;
     }
+
 
     @Override
     public int getFrequencyOf(T anEntry) {
-        int counter = 0;
-        for (int index = 0; index < count; index++){
-            if (anEntry.equals(bag[index]))
-                counter++;
-        }
-        return counter;
+        return (int)Arrays.stream(bag).filter(item -> item.equals(anEntry)).count();
     }
 
     @Override
     public boolean contains(T anEntry) {
-        for (int index = 0; index < count; index++){
-            if (anEntry.equals(bag[index]))
-               return true;
-        }
-        return false;
+        return getFrequencyOf(anEntry) > 0; //getIndexOf(anEntry) > -1;
     }
 
     @Override
     public T[] toArray() {
-        return null;
+        return bag;
+    }
+    public Stream<T> toStream(){
+        //ToDo- Need to be modified- loop until count IntStream.range(0, count)
+      return Arrays.stream(bag);
+    }
+    private void ensureCapacity(){
+        if(count == bag.length)
+            bag = Arrays.copyOf(bag, 2* bag.length);
+    }
+    private int getIndexOf(T anEntry){
+      boolean stillLooking = true;
+      int index = -1;
+      for(int i = 0; stillLooking && (i < count); i++){
+          if(anEntry.equals(bag[i])){
+              stillLooking = false;
+              index = i;
+          }
+      }
+      return index;
+    }
+    private T removeEntry(int givenIndex){
+        T result = null;
+        if(!isEmpty() && (givenIndex >= 0)){
+            result = bag[givenIndex];
+            count --;
+            bag[givenIndex] = bag[count]; //replace with last entry
+            bag[count] = null; //remove last entry
+        }
+        return result;
     }
 }
 
@@ -151,7 +176,7 @@ class LinkedBag<T> implements IBag<T>{
     }
 
     @Override
-    public void clear(T anEntry) {
+    public void clear() {
 
     }
 
@@ -169,64 +194,10 @@ class LinkedBag<T> implements IBag<T>{
     public T[] toArray() {
         return null;
     }
-}
-
-
-class Bag<Item> implements IBag<Item> {
-    private List<Item> items;
-    public Bag() {
-        items = new ArrayList<>();
-    }
-    @Override
-    public int getCurrentSize() {
-        return items.size();
-    }
-    @Override
-    public boolean isFull() {
-        return false;
-    }
 
     @Override
-    public boolean isEmpty() {
-        return items.isEmpty();
-    }
-
-    @Override
-    public boolean add(Item newItem) {
-        return items.add(newItem);
-    }
-
-    @Override
-    public Item remove() {
+    public Stream<T> toStream() {
         return null;
-    }
-
-    @Override
-    public boolean remove(Item anEntry) {
-        return items.remove(anEntry);
-    }
-
-    @Override
-    public void clear(Item anEntry) {
-
-    }
-
-    @Override
-    public int getFrequencyOf(Item anEntry) {
-        return (int)items.stream().filter(item -> item.equals(anEntry)).count();
-    }
-
-    @Override
-    public boolean contains(Item anEntry) {
-        return items.stream().anyMatch(item -> items.contains(anEntry));
-    }
-
-    @Override
-    public Item[] toArray() {
-        return null;
-    }
-    public  List<Item> getItems(){
-        return new ArrayList<>(items);
     }
 }
 
@@ -250,7 +221,7 @@ interface IBag<T> {
     boolean remove(T  anEntry);
 
     /** Remove all entries from this bag */
-    void clear(T  anEntry);
+    void clear();
 
     /** Count the number of times a given entry appears in the bag */
     int getFrequencyOf(T  anEntry);
@@ -260,4 +231,7 @@ interface IBag<T> {
 
     /** Convert to an array*/
     T[] toArray();
+    /** Convert to stream*/
+    Stream<T> toStream();
+
 }

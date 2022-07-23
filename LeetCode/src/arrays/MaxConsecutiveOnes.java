@@ -1,5 +1,8 @@
 package arrays;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
 /**
  * Given a binary array nums, return the maximum number of consecutive 1's in the array.
  * Example 1- Input: nums = [1,1,0,1,1,1],  Output: 3
@@ -10,10 +13,11 @@ package arrays;
 public class MaxConsecutiveOnes {
     private int findMaxConsecutiveOnes(int[] nums) {
         /**
-         * 1. Start count and max from zero
-         * 2. Loop through the item and when num is 1 then update counter(increase by 1)
-         * 3. But when num is zero first update the max then update count = 0;
-         * 4. Finally, return the max value of count and max
+         * 1. Initialise and declare a variable
+         * 2. Loop through to keep track of how many 1's you've seen in a row.
+         * 3. when num is 1 then update counter(increase by 1)
+         * 4. But when num is zero first update the max then update count = 0;
+         * 5. Finally, return the max value of count and max
          */
         // Hint: Initialise and declare a variable here to
         int max = 0, count = 0;
@@ -52,11 +56,26 @@ public class MaxConsecutiveOnes {
         }
         return max;
     }
+    private int findMaxConsecutiveOnes2(int[] nums) {
+        AtomicInteger max = new AtomicInteger();
+        AtomicInteger count = new AtomicInteger();
+        IntStream.range(0, nums.length).forEach(i ->{
+            if(nums[i] == 1){
+                count.addAndGet(1); //Increment the count of 1's by one.
+                max.set(Math.max(count.get(), max.get()));
+            }else{
+                count.set(0);
+            }
+        });
+        return max.get();
+    }
     public static void main(String[] args) {
         MaxConsecutiveOnes maxConsecutiveOnes = new MaxConsecutiveOnes();
         System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes(new int[]{1,1,0,1,1,1}));
         System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes(new int[]{1,0,1,1,0,1}));
         System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes1(new int[]{1,1,0,1,1,1}));
         System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes1(new int[]{1,0,1,1,0,1}));
+        System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes2(new int[]{1,1,0,1,1,1}));
+        System.out.println(maxConsecutiveOnes.findMaxConsecutiveOnes2(new int[]{1,0,1,1,0,1}));
     }
 }
