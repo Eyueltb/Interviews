@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
  * 2 contains 1 digit (odd number of digits).
  * 6 contains 1 digit (odd number of digits).
  * 7896 contains 4 digits (even number of digits).
- * Therefore only 12 and 7896 contain an even number of digits.
+ * Therefore, only 12 and 7896 contain an even number of digits.
  *
  * Example 2:
  *
@@ -24,8 +24,11 @@ import java.util.stream.IntStream;
  * Constraints:
  * 1 <= nums.length <= 500
  * 1 <= nums[i] <= 105
+ *
+ * Hint- 1. How to compute the number of digits of a number ?  2. Divide the number by 10 again and again to get the number of digits.
  */
 public class FindNumbersWithEvenNumberOfDigits {
+
     private int findNumbers(int[] nums) {
         int count = 0;
         for(int num : nums) {
@@ -39,7 +42,6 @@ public class FindNumbersWithEvenNumberOfDigits {
         }
         return count;
     }
-
 
     private int findNumbers1(int[] nums) {
         int count =0;
