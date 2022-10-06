@@ -4,13 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+/**
+ * Factory- is an object able to create another objects
+ *        - It can be modeled by Supplier
+ *
+ */
 public class FunctionalInterfaceMain {
 
     public static void main(String[] args) {
-        java.util.Comparator<String> f ;
+
         Consumer<String> c1 = s -> System.out.println("C1 = " + s);
         Consumer<String> c2 = s -> System.out.println("C2 = " + s);
         Consumer<String>c3 = c1.andThen(c2); //chaining consumer- possible by using default method
@@ -50,7 +58,7 @@ public class FunctionalInterfaceMain {
         Persons jef = new Persons("Jef", 35);
         Persons zed = new Persons("Zed", 35);
 
-        IComparator<Persons> compName = (p1, p2) -> {
+        Comparator<Persons> compName = (p1, p2) -> {
             final String name1 = p1.getName();
             final String name2 = p2.getName();
             return name1.compareTo(name2);
@@ -64,11 +72,28 @@ public class FunctionalInterfaceMain {
         Comparator<Persons> compNameReversed = compName.reversed();
         System.out.println("" + (compNameReversed.compare(beti, dani) > 0));
 
-        Comparator<Persons> cmpName = Comparator.comparing(Persons::getName);
+        /*Comparator<Persons> cmpName = Comparator.comparing(Persons::getName);
         Comparator<Persons> cmpAge = Comparator.comparing(Persons::getAge);
 
-        Comparator<Persons> cmp = cmpName.thenComparing(cmpAge);
+        Comparator<Persons> cmp = Comparator.comparing(Persons::getName)
+                                        .thenComparing(getAge);
+        System.out.println("" + (cmp.compare(beti, dani) > 0));
+        System.out.println("" + (cmp.compare(jef, mel) <= 0));*/
 
+        Comparator<Persons> cmp1 = Comparator.comparing(Persons::getName)
+                                        .thenComparing(Persons::getAge);
+        System.out.println("" + (cmp1.compare(beti, dani) > 0));
+        System.out.println("" + (cmp1.compare(jef, mel) <= 0));
+
+
+        //Simulating Factory design pattern
+        Factory<Circle> factory = ()-> new Circle();
+        Circle circle = factory.newInstance();
+        System.out.println("Circle []" + circle);
+        List<Circle> list  = factory.creat5();
+        System.out.println("List = "+ list);
+
+        final Factory<Circle> factory1 = Factory.createFactory();
     }
 
 }
@@ -126,24 +151,57 @@ interface Function<T, R>  {
 }
 
 @FunctionalInterface
-interface IComparator<T> {
+interface Comparator<T> {
     int compare(T t1, T t2);
 
     default  Comparator<T> reversed() {
         return (t1,t2)-> this.compare(t2,t1);
     }
 
+    default <U extends Comparable<U>> Comparator<T>  thenComparing(Function<T, U> keyExtractor) {
+        Objects.requireNonNull(keyExtractor);
+        return (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
+    }
+
+    default Comparator<T>  thenComparing(Comparator<T> other) {
+        Objects.requireNonNull(other);
+        return (T t1, T t2)-> {
+            final int compare = this.compare(t1, t2);
+            if(compare == 0) {
+                return other.compare(t1,t2);
+            } else {
+                return compare;
+            }
+        };
+    }
+
     static <T, U extends Comparable<U> > Comparator<T> comparing(Function<T, U> keyExtracted) {
         Objects.requireNonNull(keyExtracted);
-        return (p1, p2) -> {
+        /*return (p1, p2) -> {
             final U s1 = keyExtracted.apply(p1);
             final U s2 = keyExtracted.apply(p2);
             return s1.compareTo(s2);
 
-        };
+        };*/
+        return (c1, c2) -> keyExtracted.apply(c1).compareTo(keyExtracted.apply(c2));
     }
 }
 
+@FunctionalInterface
+interface Factory<T> extends Supplier<T> {
+
+    default T newInstance() {
+        return get(); // call the supper method
+    }
+
+    default List<T>  creat5(){
+        return IntStream.range(0, 5).mapToObj(index->newInstance()).collect(Collectors.toList());
+    }
+
+    static Factory<Circle> createFactory(){
+        return () -> new Circle();
+    }
+}
 
 @Data @AllArgsConstructor
 class Temperature {
@@ -154,5 +212,12 @@ class Temperature {
 class Persons {
     private String name;
     private int age;
+
+}
+
+@Data @AllArgsConstructor
+class Circle {
+    @Override
+    public String toString() { return  "Circle []" ;}
 
 }

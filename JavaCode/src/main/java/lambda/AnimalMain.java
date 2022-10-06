@@ -3,9 +3,7 @@ package lambda;
 import lombok.Data;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+
 
 public class AnimalMain {
     public static void main(String[] args) {
@@ -18,7 +16,7 @@ public class AnimalMain {
         //animals.stream().forEach(System.out::println);
         animals.removeIf(animal -> animal.getSpecies().charAt(0)!='f'); // remove every thing that is not started with 'f'
         animals.stream().forEach(System.out::println);
-        animals.sort(Comparator.comparing(Animal::getSpecies));
+        //animals.sort(Comparator.comparing(Animal::getSpecies));
         System.out.println(animals.stream().anyMatch(a->a.isCanHop()));
         System.out.println(print(animals, a->a.isCanHop()));
         Person p = new Person("AA", 10);
