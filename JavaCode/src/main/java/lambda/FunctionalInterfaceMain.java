@@ -4,21 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Factory- is an object able to create another objects
  *        - It can be modeled by Supplier
- *
+ * A singleton is a class that have one single instance.
+ * Registory is doing the same thing as Factory - But adding elements dynamically to Registory is achieved using a Builder pattern.
+ * 1. Add elements to registory
+ * 2. Build the registory and seal it. See Stream. Builder API
  */
 public class FunctionalInterfaceMain {
 
     public static void main(String[] args) {
 
+        Stream.Builder<String> builder = Stream.builder();
+        builder.add("One");
+        builder.add("TWO");
+        builder.add("THREE");
+        Stream<String> stream = builder.build();
+        stream.forEach(System.out::println);
         Consumer<String> c1 = s -> System.out.println("C1 = " + s);
         Consumer<String> c2 = s -> System.out.println("C2 = " + s);
         Consumer<String>c3 = c1.andThen(c2); //chaining consumer- possible by using default method
@@ -93,7 +104,14 @@ public class FunctionalInterfaceMain {
         List<Circle> list  = factory.creat5();
         System.out.println("List = "+ list);
 
-        final Factory<Circle> factory1 = Factory.createFactory();
+        final Factory<Circle> factory1 = Factory.createFactory(Circle::new);
+        final Factory<Circle> factory2 = Factory.createFactory(Color.RED);
+        final Factory<Circle> factory3 = Factory.createFactory(Circle::new, Color.RED); //color -> new Circle(color)
+
+        //Registory
+        SwitchRegistry registry = new SwitchRegistry();
+        Factory<Rectangle> rectangleFactory = (Factory<Rectangle>) registry.buildShapeFactory("rectangle");
+        System.out.println("Rectangle : "+ rectangleFactory.newInstance());
     }
 
 }
@@ -198,8 +216,27 @@ interface Factory<T> extends Supplier<T> {
         return IntStream.range(0, 5).mapToObj(index->newInstance()).collect(Collectors.toList());
     }
 
-    static Factory<Circle> createFactory(){
+    /*static Factory<Circle> createFactory(){
         return () -> new Circle();
+    }*/
+    /* To make the above generic */
+    static <T> Factory<T> createFactory(Supplier<T> supplier) {
+        /* to return singleton */
+        T singleton = supplier.get();
+        return (Factory<T>) singleton;
+        //return () -> supplier.get(); // return different instance every time it's called
+    }
+
+    static Factory<Circle> createFactory(Color color) {
+        Function<Color, Circle> constructor = c -> new Circle();
+        return () -> constructor.apply(color);
+        //return () -> new Circle(color);
+    }
+    static Factory<Circle> createFactory(Function<Color, Circle> constructor, Color color) {
+         return () -> constructor.apply(color);
+    }
+    static <T, U> Factory<T> createFactory1(Function<U, T> constructor, U color) {
+        return () -> constructor.apply(color);
     }
 }
 
@@ -215,9 +252,55 @@ class Persons {
 
 }
 
-@Data @AllArgsConstructor
+@Data
 class Circle {
+
+    private Color color;
+
+    public Circle(){
+        this.color = color;
+    }
+    public Circle(Color color){
+        this.color = color;
+    }
     @Override
     public String toString() { return  "Circle []" ;}
 
+
+}
+
+enum Color {
+    WHITE, RED, YELLOW;
+}
+
+interface Shape {
+
+}
+
+class Square implements Shape {
+    @Override
+    public String toString() { return  "Square []" ;}
+}
+
+class Triangle implements Shape {
+    @Override
+    public String toString() { return  "Triangle []" ;}
+}
+
+class Rectangle implements Shape {
+    @Override
+    public String toString() { return  "Rectangle []" ;}
+}
+
+class SwitchRegistry {
+
+    Factory<? extends Shape> buildShapeFactory(String shape) {
+        switch (shape) {
+            case "square" : return () -> new Square();
+            case "triangle" : return () -> new Triangle();
+            case "rectangle" : return () -> new Rectangle();
+            default:
+                throw new IllegalArgumentException("Unknown shape "+ shape);
+        }
+    }
 }
