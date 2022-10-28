@@ -13,7 +13,7 @@ public class Marathon {
      * N.B-The function return the index of max value in the list
      */
     private static int findFastest(int[] times) {
-        return  IntStream.range(0,times.length).reduce((i, j) -> times[i] > times[j] ? j : i).getAsInt();
+        return  IntStream.range(0, times.length).reduce((i, j) -> times[i] > times[j] ? j : i).getAsInt();
     }
 
     /**
