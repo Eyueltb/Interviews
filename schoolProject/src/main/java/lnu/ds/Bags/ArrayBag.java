@@ -113,7 +113,14 @@ public final class ArrayBag<T> implements IBag<T> {
     }
 
     private T removeEntry(int index) {
-       return null;
+        T result = null;
+        if (!isEmpty() && index >= 0) {
+            result = bag[index];
+            bag[index] = bag[numberOfEntries - 1]; // Replace it with last entry
+            bag[numberOfEntries - 1] = null; // remove the last entry
+            numberOfEntries--;
+        }
+        return result;
     }
 
 }
