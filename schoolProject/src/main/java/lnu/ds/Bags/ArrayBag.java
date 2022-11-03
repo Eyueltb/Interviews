@@ -2,6 +2,8 @@ package lnu.ds.Bags;
 
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public final class ArrayBag<T> implements IBag<T> {
 
@@ -40,16 +42,24 @@ public final class ArrayBag<T> implements IBag<T> {
         bag[numberOfEntries++] = newEntry;
         return true;
     }
-    /**  Removes one unspecified entry from this bag */
+    /**  Removes one unspecified entry from this bag(remove from last index) */
     @Override
     public T remove() {
-        return null;
+        T result = null;
+        if (numberOfEntries > 0) {
+            result = bag[numberOfEntries - 1];
+            bag[numberOfEntries - 1] = null;
+            numberOfEntries--;
+        }
+        return result;
     }
 
     /**  Removes one occurrence of a given entry from this bag. */
     @Override
     public boolean remove(T anEntry) {
-       return false;
+        int index = getIndexOf(anEntry);
+        T result = removeEntry(index);
+        return anEntry.equals(result);
     }
 
     @Override
@@ -88,6 +98,23 @@ public final class ArrayBag<T> implements IBag<T> {
 
     private boolean checkCapacity(int newLength) {
         return (newLength <= MAX_CAPACITY);
+    }
+
+    private int getIndexOf(T anEntry) {
+        AtomicInteger index = new AtomicInteger();
+
+        IntStream.range(0, numberOfEntries )
+                .forEach( i-> {
+                    if(bag[i].equals(anEntry)) {
+                        index.set(i);
+                        return;
+                    }
+                });
+        return index.get();
+    }
+
+    private T removeEntry(int index) {
+       return null;
     }
 
 }
