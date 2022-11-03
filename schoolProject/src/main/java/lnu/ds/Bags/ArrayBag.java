@@ -102,8 +102,7 @@ public final class ArrayBag<T> implements IBag<T> {
 
     private int getIndexOf(T anEntry) {
         AtomicInteger index = new AtomicInteger();
-
-        IntStream.range(0, numberOfEntries )
+        IntStream.range(0, numberOfEntries)
                 .forEach( i-> {
                     if(bag[i].equals(anEntry)) {
                         index.set(i);
