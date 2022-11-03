@@ -1,6 +1,6 @@
 package lnu.ds.Bags;
 
-public final class SLinkedListBag<T> implements IBag<T> {
+public final class SLinkedListBag<T>  implements IBag<T> {
 
 
     @Override
@@ -47,6 +47,5 @@ public final class SLinkedListBag<T> implements IBag<T> {
     public T[] toArray() {
         return null;
     }
-
 
 }
